@@ -45,6 +45,7 @@ class TrainData(Dataset):
 
     def __getitem__(self, index):
         img = self.train_hr_imgs[index]
+        img = np.asarray(img, dtype= np.float32)
         hr_patch = self.hr_trans(img)
         lr_patch = self.lr_trans(hr_patch)
         return nor(lr_patch), nor(hr_patch)
@@ -173,7 +174,8 @@ def evaluate():
     G.set_eval()
     imid = 0  # 0: 企鹅  81: 蝴蝶 53: 鸟  64: 古堡
     valid_hr_img = valid_hr_imgs[imid]
-    valid_lr_img = np.asarray(valid_hr_img)
+    valid_hr_img = np.asarray(valid_hr_img, dtype =np.float32)
+    valid_lr_img = np.asarray(valid_hr_img, dtype =np.float32)
     hr_size1 = [valid_lr_img.shape[0], valid_lr_img.shape[1]]
     valid_lr_img = cv2.resize(valid_lr_img, dsize=(hr_size1[1] // 4, hr_size1[0] // 4))
     valid_lr_img_tensor = (valid_lr_img / 127.5) - 1  # rescale to ［－1, 1]
@@ -214,3 +216,4 @@ if __name__ == '__main__':
         evaluate()
     else:
         raise Exception("Unknow --mode")
+        
