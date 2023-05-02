@@ -35,7 +35,7 @@ nor = Compose([Normalize(mean=(127.5), std=(127.5), data_format='HWC'),
 lr_transform = Resize(size=(96, 96))
 
 train_hr_imgs = tlx.vision.load_images(path=config.TRAIN.hr_img_path, n_threads = 32)
-#train_lr_imgs = tlx.vision.load_images(path=config.TRAIN.lr_img_path, n_threads = 32)
+train_lr_imgs = tlx.vision.load_images(path=config.TRAIN.lr_img_path, n_threads = 32)
 
 class TrainData(Dataset):
 
@@ -49,8 +49,8 @@ class TrainData(Dataset):
         img = self.train_hr_imgs[index]
         img = np.asarray(img, dtype= np.float32)
         hr_patch = self.hr_trans(img)
-        #img_lr = self.train_lr_imgs[index]
-        #img_lr = np.asarray(img_lr, dtype= np.float32)
+        img_lr = self.train_lr_imgs[index]
+        img_lr = np.asarray(img_lr, dtype= np.float32)
         #lr_patch = self.lr_trans(img_lr)
         lr_patch = self.lr_trans(hr_patch)
         return nor(lr_patch), nor(hr_patch)
