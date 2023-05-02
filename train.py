@@ -35,11 +35,13 @@ nor = Compose([Normalize(mean=(127.5), std=(127.5), data_format='HWC'),
 lr_transform = Resize(size=(96, 96))
 
 train_hr_imgs = tlx.vision.load_images(path=config.TRAIN.hr_img_path, n_threads = 32)
+#train_lr_imgs = tlx.vision.load_images(path=config.TRAIN.lr_img_path, n_threads = 32)
 
 class TrainData(Dataset):
 
     def __init__(self, hr_trans=hr_transform, lr_trans=lr_transform):
         self.train_hr_imgs = train_hr_imgs
+        #self.train_lr_imgs = train_lr_imgs
         self.hr_trans = hr_trans
         self.lr_trans = lr_trans
 
@@ -47,6 +49,9 @@ class TrainData(Dataset):
         img = self.train_hr_imgs[index]
         img = np.asarray(img, dtype= np.float32)
         hr_patch = self.hr_trans(img)
+        #img_lr = self.train_lr_imgs[index]
+        #img_lr = np.asarray(img_lr, dtype= np.float32)
+        #lr_patch = self.lr_trans(img_lr)
         lr_patch = self.lr_trans(hr_patch)
         return nor(lr_patch), nor(hr_patch)
 
@@ -169,6 +174,7 @@ def train():
 def evaluate():
     ###====================== PRE-LOAD DATA ===========================###
     valid_hr_imgs = tlx.vision.load_images(path=config.VALID.hr_img_path )
+    #valid_lr_imgs = tlx.vision.load_images(path=config.VALID.lr_img_path )
     ###========================LOAD WEIGHTS ============================###
     G.load_weights(os.path.join(checkpoint_dir, 'g.npz'), format='npz_dict')
     G.set_eval()
@@ -176,8 +182,10 @@ def evaluate():
     valid_hr_img = valid_hr_imgs[imid]
     valid_hr_img = np.asarray(valid_hr_img, dtype =np.float32)
     valid_lr_img = np.asarray(valid_hr_img, dtype =np.float32)
-    hr_size1 = [valid_lr_img.shape[0], valid_lr_img.shape[1]]
-    valid_lr_img = cv2.resize(valid_lr_img, dsize=(hr_size1[1] // 4, hr_size1[0] // 4))
+    #valid_lr_img = valid_lr_imgs[imid]
+    #valid_lr_img = np.asarray(valid_lr_img, dtype =np.float32)
+    '''hr_size1 = [valid_lr_img.shape[0], valid_lr_img.shape[1]]
+    valid_lr_img = cv2.resize(valid_lr_img, dsize=(hr_size1[1] // 4, hr_size1[0] // 4))'''
     valid_lr_img_tensor = (valid_lr_img / 127.5) - 1  # rescale to ［－1, 1]
 
 
@@ -195,8 +203,8 @@ def evaluate():
     tlx.vision.save_image(out, file_name='valid_gen.png', path=save_dir)
     tlx.vision.save_image(valid_lr_img, file_name='valid_lr.png', path=save_dir)
     tlx.vision.save_image(valid_hr_img, file_name='valid_hr.png', path=save_dir)
-    out_bicu = cv2.resize(valid_lr_img, dsize = [size[1] * 4, size[0] * 4], interpolation = cv2.INTER_CUBIC)
-    tlx.vision.save_image(out_bicu, file_name='valid_hr_cubic.png', path=save_dir)
+    '''out_bicu = cv2.resize(valid_lr_img, dsize = [size[1] * 4, size[0] * 4], interpolation = cv2.INTER_CUBIC)
+    tlx.vision.save_image(out_bicu, file_name='valid_hr_cubic.png', path=save_dir)'''
 
 
 if __name__ == '__main__':
